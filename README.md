@@ -11,6 +11,14 @@ Command-line downloader for downloadable Sketchfab models. Supports downloading 
 
 ## Usage
 
+Add your Sketchfab login/password to your `~/.netrc` (which should be readable/writable only by the owner, which you can accomplish with `chmod 600 ~/.netrc`) like so:
+
+    machine sketchfab.com
+      login example@example.com
+      password examplepassword
+
+Then:
+
     bundle exec ./sketchfab-dl.rb sketchfaburl [sketchfaburl2 ...]
 
 ## FAQ
