@@ -11,6 +11,8 @@ require 'fileutils'
 require 'i18n'
 I18n.config.available_locales = :en
 
+DEFAULT_SLEEP = 5
+
 def login(browser)
   email, password = Netrc.read()['sketchfab.com']
   if(!email.nil?) && (!password.nil?)
@@ -67,7 +69,7 @@ def download_model(browser, url)
         end
       rescue Exception => e
         puts e.message
-        sleep(1)
+        sleep(DEFAULT_SLEEP)
         retry
       end
     end
@@ -86,6 +88,7 @@ def download_user(browser, username)
     puts "About to fetch #{models_json["results"].length} models"
     models_json["results"].each do |model|
       download_model(browser, model['viewerUrl'])
+      sleep(DEFAULT_SLEEP)
     end
     if models_json.has_key?("next")
       models_url = models_json["next"]
@@ -105,6 +108,9 @@ def sketchfab_download(browser, url)
 end
 
 def model_to_filename(model_json)
+  if model_json["detail"] == "Enhance your calm."
+    abort("Hit Sketchfab API rate limit :(\nTry again later.")
+  end
   "#{I18n.transliterate(model_json['name']).downcase.gsub(/[^\w\s]/,'').tr(' ','-')}-#{model_json['uid']}"
 end
 
@@ -127,13 +133,11 @@ browser = Watir::Browser.new :chrome, options: {prefs: prefs}
 if login(browser)
   ARGV.each do |sketchfab_url|
     sketchfab_download(browser, sketchfab_url)
+    sleep(DEFAULT_SLEEP)
   end
 else
   puts "Login failure"
 end
-
-# document = Nokogiri::HTML(browser.html)
-# puts document.search('title').xpath('text()')
 
 browser.close
 headless.destroy
