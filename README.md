@@ -6,12 +6,12 @@ Command-line downloader for downloadable Sketchfab models. Supports downloading 
 
 * Ruby
 * [Bundler](http://bundler.io/)
-* A working install of [the requirements for the `headless` gem](https://github.com/leonid-shevtsov/headless) (xvfb/XQuartz...)
+* A working install of [the requirements for the `headless` gem](https://github.com/leonid-shevtsov/headless) (Xvfb/XQuartz...)
 * [ChromeDriver](https://sites.google.com/a/chromium.org/chromedriver/downloads) (`brew install chromedriver` on OS X)
 
 ## Usage
 
-    bundle exec ./sketchfab-dl.rb [sketchfaburl1, sketchfaburl2, ...]
+    bundle exec ./sketchfab-dl.rb sketchfaburl [sketchfaburl2 ...]
 
 ## FAQ
 
