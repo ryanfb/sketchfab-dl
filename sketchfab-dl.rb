@@ -72,7 +72,7 @@ def download_model(browser, url)
       end
     end
   else
-    puts 'Unrecognized SketchFab model URL, skipping'
+    puts 'Unrecognized Sketchfab model URL, skipping'
   end
 end
 
