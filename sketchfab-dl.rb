@@ -7,6 +7,9 @@ require 'netrc'
 require 'pp'
 require 'net/http'
 require 'json'
+require 'fileutils'
+require 'i18n'
+I18n.config.available_locales = :en
 
 def login(browser)
   email, password = Netrc.read()['sketchfab.com']
@@ -28,20 +31,48 @@ def login(browser)
 end
 
 def download_model(browser, url)
-  puts 'Downloading ' + url
-  browser.goto(url)
-  puts 'Got page title: ' + browser.title
-  if browser.span(text: 'Download').exists?
-    browser.span(text: 'Download').click
-    browser.span(text: 'Download original').click
-    browser.span(text: 'Download original').wait_while_present
-    begin
-      print '.'
-      sleep(1)
-    end while (Dir.glob('*.crdownload').length > 0)
-    puts 'download finished.'
+  if url =~ /^https?:\/\/.*\.?sketchfab\.com\/models\/([[:xdigit:]]+)$/
+    puts 'Downloading ' + url
+    model_json = Net::HTTP.get(URI("https://api.sketchfab.com/v3/models/#{$1}"))
+    output_filename = model_to_filename(JSON.parse(model_json))
+    unless File.exist?(output_filename + '.json')
+      puts "Writing metadata to: #{output_filename}.json"
+      File.write(output_filename + '.json', model_json)
+    end
+    if File.exist?(output_filename + '.zip')
+      puts "#{output_filename}.zip already exists, skipping"
+    else
+      begin
+        browser.goto(url)
+        puts 'Got page title: ' + browser.title
+        if browser.span(text: 'Download').exists?
+          zips_before = Dir.glob('*.zip')
+          browser.span(text: 'Download').click
+          browser.span(text: 'Download original').wait_until_present
+          browser.span(text: 'Download original').click
+          browser.span(text: 'Download original').wait_while_present
+          begin
+            print '.'
+            sleep(1)
+          end while (Dir.glob('*.crdownload').length > 0)
+          puts 'download finished.'
+          downloaded_filename = (Dir.glob('*.zip') - zips_before).first
+          if downloaded_filename.nil?
+            raise 'Got an empty download, retrying...'
+          else
+            FileUtils.mv downloaded_filename, output_filename + '.zip', :verbose => true
+          end
+        else
+          puts 'Model not available for download, skipping'
+        end
+      rescue Exception => e
+        puts e.message
+        sleep(1)
+        retry
+      end
+    end
   else
-    puts 'Model not available for download, skipping'
+    puts 'Unrecognized SketchFab model URL, skipping'
   end
 end
 
@@ -71,6 +102,10 @@ def sketchfab_download(browser, url)
   elsif url =~ /^https?:\/\/.*\.?sketchfab\.com\/([^\/]+)/
     download_user(browser, $1)
   end
+end
+
+def model_to_filename(model_json)
+  "#{I18n.transliterate(model_json['name']).downcase.gsub(/[^\w\s]/,'').tr(' ','-')}-#{model_json['uid']}"
 end
 
 headless = Headless.new
