@@ -35,18 +35,26 @@ end
 def download_model(browser, url)
   if url =~ /^https?:\/\/.*\.?sketchfab\.com\/models\/([[:xdigit:]]+)$/
     puts 'Downloading ' + url
-    model_json = Net::HTTP.get(URI("https://api.sketchfab.com/v3/models/#{$1}"))
-    output_filename = model_to_filename(JSON.parse(model_json))
+    browser.goto(url)
+    puts 'Got page title: ' + browser.title
+    nokogiri_document = Nokogiri::HTML(browser.html)
+    model_name = nokogiri_document.css('span.model-name__label')[0].text
+    # output_filename = model_to_filename(JSON.parse(model_json))
+    output_filename = model_to_filename(model_name, $1)
     unless File.exist?(output_filename + '.json')
-      puts "Writing metadata to: #{output_filename}.json"
-      File.write(output_filename + '.json', model_json)
+      puts "Fetching JSON metadata"
+      model_json = Net::HTTP.get(URI("https://api.sketchfab.com/v3/models/#{$1}"))
+      if JSON.parse(model_json)["detail"] == "Enhance your calm."
+        puts "Hit Sketchfab API rate limit...try re-downloading later."
+      else
+        puts "Writing metadata to: #{output_filename}.json"
+        File.write(output_filename + '.json', model_json)
+      end
     end
     if File.exist?(output_filename + '.zip')
       puts "#{output_filename}.zip already exists, skipping"
     else
       begin
-        browser.goto(url)
-        puts 'Got page title: ' + browser.title
         if browser.span(text: 'Download').exists?
           zips_before = Dir.glob('*.zip')
           browser.span(text: 'Download').click
@@ -70,6 +78,7 @@ def download_model(browser, url)
       rescue Exception => e
         puts e.message
         sleep(DEFAULT_SLEEP)
+        browser.goto(url)
         retry
       end
     end
@@ -107,11 +116,9 @@ def sketchfab_download(browser, url)
   end
 end
 
-def model_to_filename(model_json)
-  if model_json["detail"] == "Enhance your calm."
-    abort("Hit Sketchfab API rate limit :(\nTry again later.")
-  end
-  "#{I18n.transliterate(model_json['name']).downcase.gsub(/[^\w\s]/,'').tr(' ','-')}-#{model_json['uid']}"
+def model_to_filename(name, uid)
+
+  "#{I18n.transliterate(name).downcase.gsub(/[^\w\s]/,'').tr(' ','-')}-#{uid}"
 end
 
 headless = Headless.new
