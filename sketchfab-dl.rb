@@ -57,14 +57,18 @@ def download_model(browser, url)
       begin
         if browser.span(text: 'Download').exists?
           zips_before = Dir.glob('*.zip')
+          crdownload_before = Dir.glob('*.crdownload')
           browser.span(text: 'Download').click
-          browser.span(text: 'Download original').wait_until_present
-          browser.span(text: 'Download original').click
-          browser.span(text: 'Download original').wait_while_present
-          begin
+          browser.button(text: 'Download').wait_until_present
+          browser.button(text: 'Download').click
+          print "Download button clicked, waiting for Chrome download to finish"
+          until Dir.glob('*.crdownload') != crdownload_before
+            sleep(1.0/100.0)
+          end
+          until Dir.glob('*.crdownload') == crdownload_before
             print '.'
             sleep(1)
-          end while (Dir.glob('*.crdownload').length > 0)
+          end
           puts 'download finished.'
           downloaded_filename = (Dir.glob('*.zip') - zips_before).first
           if downloaded_filename.nil?
