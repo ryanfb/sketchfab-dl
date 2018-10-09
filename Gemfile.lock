@@ -1,10 +1,10 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    childprocess (0.8.0)
+    childprocess (0.9.0)
       ffi (~> 1.0, >= 1.0.11)
     concurrent-ruby (1.0.5)
-    ffi (1.9.18)
+    ffi (1.9.25)
     headless (2.3.1)
     i18n (0.9.1)
       concurrent-ruby (~> 1.0)
@@ -12,11 +12,11 @@ GEM
     netrc (0.11.0)
     nokogiri (1.8.1)
       mini_portile2 (~> 2.3.0)
-    rubyzip (1.2.1)
-    selenium-webdriver (3.8.0)
+    rubyzip (1.2.2)
+    selenium-webdriver (3.14.1)
       childprocess (~> 0.5)
-      rubyzip (~> 1.0)
-    watir (6.10.2)
+      rubyzip (~> 1.2, >= 1.2.2)
+    watir (6.14.0)
       selenium-webdriver (~> 3.4, >= 3.4.1)
 
 PLATFORMS
@@ -30,4 +30,4 @@ DEPENDENCIES
   watir
 
 BUNDLED WITH
-   1.15.3
+   1.16.1
