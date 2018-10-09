@@ -15,8 +15,8 @@ DEFAULT_SLEEP = 5
 
 def login(browser)
   if File.exist?('.cookies')
-    browser.goto('https://sketchfab.com/')
     puts 'Loading cookies from .cookies file'
+    browser.goto('https://sketchfab.com/')
     browser.cookies.load '.cookies'
     return true
   else
