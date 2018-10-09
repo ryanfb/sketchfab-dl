@@ -25,4 +25,10 @@ Then:
 
 * I get the error: `Display socket is taken but lock file is missing - check the Headless troubleshooting guide`
 
-See this issue/comment on the `headless` gem: <https://github.com/leonid-shevtsov/headless/issues/80#issuecomment-278182878>
+[See this issue/comment on the `headless` gem which suggests running](https://github.com/leonid-shevtsov/headless/issues/80#issuecomment-278182878):
+
+```
+mkdir /tmp/.X11-unix
+sudo chmod 1777 /tmp/.X11-unix
+sudo chown root /tmp/.X11-unix/
+```
