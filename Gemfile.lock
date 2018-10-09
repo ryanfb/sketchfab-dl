@@ -1,3 +1,11 @@
+GIT
+  remote: git://github.com/ryanfb/watir.git
+  revision: 062ed4522f4a76de0126606b952b954b54a91c30
+  branch: issue_790
+  specs:
+    watir (6.14.0)
+      selenium-webdriver (~> 3.4, >= 3.4.1)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -16,8 +24,6 @@ GEM
     selenium-webdriver (3.14.1)
       childprocess (~> 0.5)
       rubyzip (~> 1.2, >= 1.2.2)
-    watir (6.14.0)
-      selenium-webdriver (~> 3.4, >= 3.4.1)
 
 PLATFORMS
   ruby
@@ -27,7 +33,7 @@ DEPENDENCIES
   i18n
   netrc
   nokogiri
-  watir
+  watir!
 
 BUNDLED WITH
    1.16.1

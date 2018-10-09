@@ -14,21 +14,33 @@ I18n.config.available_locales = :en
 DEFAULT_SLEEP = 5
 
 def login(browser)
-  email, password = Netrc.read()['sketchfab.com']
-  if(!email.nil?) && (!password.nil?)
-    puts "Logging in as #{email}"
-    browser.goto('https://sketchfab.com/login')
-    puts 'Got page title: ' + browser.title
-    browser.text_field(id: 'email').set email
-    browser.text_field(id: 'password').set password
-    browser.span(text: 'Log in').click
-    browser.span(text: 'Log in').wait_while_present
-    puts 'Login success'
-    puts 'Got page title: ' + browser.title
+  if File.exist?('.cookies')
+    browser.goto('https://sketchfab.com/')
+    puts 'Loading cookies from .cookies file'
+    browser.cookies.load '.cookies'
     return true
   else
-    puts 'Unable to get sketchfab.com username or password from .netrc'
-    return false
+    email, password = Netrc.read()['sketchfab.com']
+    if(!email.nil?) && (!password.nil?)
+      puts "Logging in as #{email}"
+      browser.goto('https://sketchfab.com/login')
+      puts 'Got page title: ' + browser.title
+      browser.text_field(id: 'email').set email
+      browser.text_field(id: 'password').set password
+      browser.button(type: 'submit').click
+      # browser.span(text: 'Log in').click
+      browser.span(text: 'Log in').wait_while_present
+      browser.h2(text: 'My Settings').wait_until(&:present?)
+      puts 'Login success'
+      puts 'Got page title: ' + browser.title
+      puts 'Saving cookies to .cookies file:'
+      puts browser.cookies.to_a.to_s
+      browser.cookies.save '.cookies'
+      return true
+    else
+      puts 'Unable to get sketchfab.com username or password from .netrc'
+      return false
+    end
   end
 end
 
@@ -59,9 +71,10 @@ def download_model(browser, url)
           zips_before = Dir.glob('*.zip')
           crdownload_before = Dir.glob('*.crdownload')
           browser.span(text: 'Download').click
-          browser.button(text: 'Download').wait_until_present
-          browser.button(text: 'Download').click
-          print "Download button clicked, waiting for Chrome download to finish"
+          puts "Initial download button clicked, waiting for download dialogue"
+          browser.button(text: 'Download', class: 'button-source').wait_until(&:present?)
+          browser.button(text: 'Download', class: 'button-source').click
+          print "Download dialogue download button clicked, waiting for Chrome download to finish"
           until Dir.glob('*.crdownload') != crdownload_before
             sleep(1.0/100.0)
           end

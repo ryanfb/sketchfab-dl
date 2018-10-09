@@ -1,5 +1,5 @@
 source 'https://rubygems.org'
-gem 'watir'
+gem 'watir', github: 'ryanfb/watir', branch: 'issue_790'
 gem 'nokogiri'
 gem 'headless'
 gem 'netrc'
