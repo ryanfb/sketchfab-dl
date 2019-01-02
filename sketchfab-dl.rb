@@ -27,10 +27,10 @@ def login(browser)
       puts 'Got page title: ' + browser.title
       browser.text_field(id: 'email').set email
       browser.text_field(id: 'password').set password
-      browser.button(type: 'submit').click
+      browser.button('data-action': 'submit-login').click
       # browser.span(text: 'Log in').click
       browser.span(text: 'Log in').wait_while_present
-      browser.h2(text: 'My Settings').wait_until(&:present?)
+      browser.div(class: 'user').wait_until(&:present?)
       puts 'Login success'
       puts 'Got page title: ' + browser.title
       puts 'Saving cookies to .cookies file:'
